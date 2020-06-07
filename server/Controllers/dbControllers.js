@@ -44,16 +44,24 @@ export const dbCreate = (req, res) => {
 
     (async function () {
         for (let tableName in createSql) {
-            await db.query(`CREATE TABLE ${tableName}(${createSql[tableName]})${dbType}`).then(
-                (result) => {
-                    console.log(`${tableName} Table created`);
-                },
-                (err) => {
-                    db.end();
-                    res.end();
-                    console.log(err);
-                }
-            );
+            try {
+                db.query(`CREATE TABLE ${tableName}(${createSql[tableName]})${dbType}`);
+                console.log(`${tableName} Table created`);
+            } catch (error) {
+                db.end();
+                res.end();
+                console.log(error);
+            }
+            // await db.query(`CREATE TABLE ${tableName}(${createSql[tableName]})${dbType}`).then(
+            //     (result) => {
+            //         console.log(`${tableName} Table created`);
+            //     },
+            //     (err) => {
+            //         db.end();
+            //         res.end();
+            //         console.log(err);
+            //     }
+            // );
         }
         return (() => {
             db.end();

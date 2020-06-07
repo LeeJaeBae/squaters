@@ -4,6 +4,8 @@
     "private": true,
     "dependencies": {
         "@babel/core": "7.9.0",
+        "@babel/node": "^7.10.1",
+        "@babel/preset-env": "^7.10.2",
         "@svgr/webpack": "4.3.3",
         "@testing-library/jest-dom": "^4.2.4",
         "@testing-library/react": "^9.3.2",
@@ -16,8 +18,10 @@
         "babel-loader": "8.1.0",
         "babel-plugin-named-asset-import": "^0.3.6",
         "babel-preset-react-app": "^9.1.2",
+        "body-parser": "^1.19.0",
         "camelcase": "^5.3.1",
         "case-sensitive-paths-webpack-plugin": "2.3.0",
+        "cors": "^2.8.5",
         "css-loader": "3.4.2",
         "dotenv": "8.2.0",
         "dotenv-expand": "5.1.0",
@@ -29,6 +33,7 @@
         "eslint-plugin-jsx-a11y": "6.2.3",
         "eslint-plugin-react": "7.19.0",
         "eslint-plugin-react-hooks": "^1.6.1",
+        "express": "^4.17.1",
         "file-loader": "4.3.0",
         "fs-extra": "^8.1.0",
         "html-webpack-plugin": "4.0.0-beta.11",
@@ -39,6 +44,8 @@
         "jest-resolve": "24.9.0",
         "jest-watch-typeahead": "0.4.2",
         "mini-css-extract-plugin": "0.9.0",
+        "mysql": "^2.18.1",
+        "nodemon": "^2.0.4",
         "optimize-css-assets-webpack-plugin": "5.0.3",
         "pnp-webpack-plugin": "1.6.4",
         "postcss-flexbugs-fixes": "4.1.0",
@@ -74,7 +81,7 @@
         "start": "node scripts/start.js",
         "build": "node scripts/build.js",
         "test": "node scripts/test.js",
-        "proxy": "node server/proxyServer.js"
+        "proxy": "babel-node server/proxyServer.js --presets=@babel/preset-env"
     },
     "eslintConfig": {
         "extends": "react-app"
@@ -143,7 +150,8 @@
     },
     "babel": {
         "presets": [
-            "react-app"
+            "react-app",
+            "env"
         ]
     },
     "devDependencies": {

@@ -1,8 +1,9 @@
-import express from "express";
+// import express from "express";
 import path from "path";
 import cors from "cors";
 import bodyParser from "body-parser";
 import dbRouter from "./Routes/dbRouter";
+const express = require("express");
 
 const app = express();
 
@@ -16,5 +17,5 @@ app.use(express.static(path.join(__dirname, "..", "public/")));
 app.use("/", dbRouter);
 
 app.listen(PORT, () => {
-  console.log("app listening on port 4000");
+    console.log("app listening on port 4000");
 });
