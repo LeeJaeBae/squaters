@@ -7,14 +7,14 @@
 // const CHANGE_PASSWORD = "/change-password";
 
 //EXERCISE DATA
-import { exerciseDelete } from "./Controllers/dbControllers";
+// import { exerciseDelete } from "./Controllers/dbControllers";
 
 //DATABASE
 const DATABASE = "/database";
 const DATABASE_CREATE = "/database/create";
 const DATABASE_DELETE = "/database/delete";
 
-const USER_CREATE = "test/user/create";
+const USER_CREATE = "/test/user/create";
 
 //CALENDAR
 const CALENDAR_CREATE = "/calendar/create";

@@ -1,14 +1,20 @@
-import mysql from "mysql";
+const mariadb = require("mariadb");
 
-const db = mysql.createConnection({
+const db = mariadb.createPool({
     host: "localhost",
     user: "root",
     password: "111111",
     database: "squat",
+    connectionLimit: 5,
 });
 
-// db connect check
-export const handleOpen = () => console.log("✅ Connected to DB");
-export const handleError = (error) => console.log(`❌ Error on DB Connection: ${error}`);
+db.getConnection()
+    .then((conn) => {
+        console.log("✅ Connected to DB " + conn.threadId);
+        conn.release(); //release to pool
+    })
+    .catch((err) => {
+        console.log("❌ Error on DB Connection: " + err);
+    });
 
 export default db;

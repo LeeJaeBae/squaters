@@ -43,6 +43,7 @@
         "jest-environment-jsdom-fourteen": "1.0.1",
         "jest-resolve": "24.9.0",
         "jest-watch-typeahead": "0.4.2",
+        "mariadb": "^2.4.0",
         "mini-css-extract-plugin": "0.9.0",
         "mysql": "^2.18.1",
         "nodemon": "^2.0.4",
@@ -81,7 +82,7 @@
         "start": "node scripts/start.js",
         "build": "node scripts/build.js",
         "test": "node scripts/test.js",
-        "proxy": "babel-node server/proxyServer.js --presets=@babel/preset-env"
+        "proxy": "babel-node server/proxyServer.js"
     },
     "eslintConfig": {
         "extends": "react-app"
@@ -151,7 +152,7 @@
     "babel": {
         "presets": [
             "react-app",
-            "env"
+            "@babel/preset-env"
         ]
     },
     "devDependencies": {

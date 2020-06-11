@@ -1,7 +1,0 @@
-{
-  "name": "proxy-server",
-  "version": "1.0.0",
-  "description": "for homefit",
-  "main": "index.js",
-  "license": "MIT"
-}
