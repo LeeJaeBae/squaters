@@ -39,3 +39,8 @@
 
 1. dbControllers 정리 하다가 getUser, createUser 생성함
 2. HomeContainer ComponentDidMount에 유저 조회 후 없으면 생성하게 만듬.
+
+" todos
+
+1. 유저 생성시 동시에 캘린더 생성하게 유도
+2. 운동시작이나 캘린더 조회시 캘린더에 운동이 들어있지 않으면 생성 유도
