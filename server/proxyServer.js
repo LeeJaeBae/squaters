@@ -16,5 +16,5 @@ app.use(express.static(path.join(__dirname, "..", "public/")));
 app.use("/", dbRouter);
 
 app.listen(PORT, () => {
-    console.log("app listening on port 4000");
+	console.log("app listening on port 4000");
 });

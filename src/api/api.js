@@ -2,28 +2,14 @@ import axios from "axios";
 
 // 프록시 서버랑 연결하는 api
 const api = axios.create({
-  // 실행할 때 마다 확인을 좀 해줘야함
-  baseURL: "http://172.25.1.37:4000/api"
+	// 실행할 때 마다 확인을 좀 해줘야함
+	baseURL: "http://192.168.200.140:4000",
 });
 
-export const getUsers = postId =>
-  api.get("users", { params: { id: `${postId}` } });
+export const getDb = () => api.get("/database");
 
-export const postUser = (id, password, username, question, answer) =>
-  api.post("login/signup", {
-    id: `${id}`,
-    password: `${password}`,
-    name: `${username}`,
-    question: `${question}`,
-    answer: `${answer}`
-  });
-export const postCounter = (id, _id, setNum, amount) =>
-  api.post("exercise", {
-    id: id,
-    _id: _id,
-    setNum: setNum,
-    amount: amount
-  });
+export const createDb = () => api.get("/database/create");
 
-export const getCounter = id =>
-  api.get("/exercise/get", { params: { id: id } });
+export const createUser = () => api.get("/user/create", { params: { user_id: 1 } });
+
+export const getUser = () => api.get("/user/get", { params: { user_id: 1 } });

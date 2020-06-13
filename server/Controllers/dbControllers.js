@@ -44,27 +44,24 @@ export const dbCreate = (req, res) => {
 
 	(async function () {
 		for (let tableName in createSql) {
-			// try {
-			//     db.query(`CREATE TABLE ${tableName}(${createSql[tableName]})${dbType}`);
-			//     console.log(`${tableName} Table created`);
-			// } catch (error) {
-			//     db.end();
-			//     res.end();
-			//     console.log(error);
-			// }
-			await db.query(`CREATE TABLE ${tableName}(${createSql[tableName]})${dbType}`).then(
-				(result) => {
-					console.log(`${tableName} Table created`);
-				},
-				(err) => {
-					// db.end();
-					res.end();
-					console.log(err);
-				}
-			);
+			await db
+				.query(`CREATE TABLE ${tableName}(${createSql[tableName]})${dbType}`)
+				.then(
+					(result) => {
+						console.log(`${tableName} Table created`);
+					},
+					(err) => {
+						res.end();
+						console.log(err);
+					}
+				)
+				.then(
+					db.query("desc user;").then((row) => {
+						res.send(row);
+					})
+				);
 		}
 		return (() => {
-			// db.end();
 			res.end();
 		})();
 	})();
@@ -91,34 +88,38 @@ export const dbDelete = (req, res) => {
 	})();
 };
 
+export const getUser = (req, res) => {
+	console.log("--------------------------------------");
+	console.log("getUser");
+	console.log("--------------------------------------");
+	db.query(`SELECT * FROM user WHERE user_id=1`).then((row) => {
+		console.log(row);
+		res.json({ data: row[0] });
+	});
+};
+
 export const userCreate = (req, res) => {
-	db.query("SELECT * FROM user WHERE user_id=?", ["test"])
+	console.log("--------------------------------------");
+	console.log("userCrea†e");
+	console.log("--------------------------------------");
+	const user_id = req.query.user_id;
+	db.query("SELECT * FROM user WHERE user_id=?", [user_id])
 		.then((row) => {
-			// if (row === undefined) {
-			db.query(
-				"INSERT INTO user (user_id, user_pw, user_name, user_phone) VALUES (?, ?, ?, ?)",
-				[user_no, "test", "1234", "01012341234"]
-			);
-			// }
-		})
-		.then(
-			() => {
-				console.log("INSERTED user : test");
-			},
-			(err) => {
-				console.log("INSERTED error :" + err);
-				db.query("INSERT INTO user_status (user_no) VALUES (?)", [user_no]);
+			if (typeof row[0] === "undefined") {
+				db.query(
+					"INSERT INTO user (user_id, user_name, user_pw, user_phone) VALUES (?, ?, ?, ?)",
+					[user_id, "test", "1234", "01012341234"]
+				).then(console.log("insert"));
+			} else {
+				console.log(`${user_id} is already inserted`);
 			}
-		)
-		.then(() => {
-			db.query("INSERT INTO calendar (user_no, calendar_id) VALUES (?, ?)", [user_no, 0]);
 		})
 		.then(() => {
-			// db.end();
-			res.end();
+			// db.query("INSERT INTO calendar (user_no, calendar_id) VALUES (?, ?)", [user_no, 0]);
 		})
 		.catch((err) => {
 			// db.end();
+			console.log(err);
 			return res.end();
 		});
 };
@@ -157,7 +158,7 @@ export const calendarCreate = (req, res) => {
 					}
 				)
 				.catch((err) => {
-					db.end();
+					// db.end();
 					return res.end();
 				});
 		})
@@ -176,7 +177,7 @@ export const calendarCreate = (req, res) => {
 						}
 					)
 					.catch((err) => {
-						db.end();
+						// db.end();
 						return res.end();
 					});
 
@@ -202,7 +203,7 @@ export const calendarCreate = (req, res) => {
 							calendarNo.push(row[0].calendar_no);
 						})
 						.catch((err) => {
-							db.end();
+							// db.end();
 							return res.end();
 						});
 				}
@@ -224,7 +225,7 @@ export const calendarCreate = (req, res) => {
 								}
 							)
 							.catch((err) => {
-								db.end();
+								// db.end();
 								return res.end();
 							});
 					}
@@ -238,7 +239,7 @@ export const calendarCreate = (req, res) => {
 			res.json({ created: true });
 		})
 		.catch((err) => {
-			db.end();
+			// db.end();
 			return res.end();
 		});
 };
@@ -258,11 +259,11 @@ export const exerciseDelete = (req, res) => {
 		})
 		.then((rows) => {
 			let rutine = rows;
-			if (rutine[exerciseNo].exercise_type == 1) res.json({ delete: false });
+			if (rutine[exerciseNo].exercise_type === 1) res.json({ delete: false });
 			let deleteRow = [];
 			if (rutine.length === 1) {
 				db.query("DELETE FROM calender WHERE exercise_no=?", [calendarId]).catch((err) => {
-					db.end();
+					// db.end();
 					return res.end();
 				});
 			} else if (rutine.length === exerciseNo) {
@@ -278,18 +279,18 @@ export const exerciseDelete = (req, res) => {
 					await db
 						.query("DELETE FROM exercise WHERE exercise_no=?", [deleteRow[i]])
 						.catch((err) => {
-							db.end();
+							// db.end();
 							return res.end();
 						});
 				}
-				return db.end();
+				// return db.end();
 			})();
 		})
 		.then(() => {
 			return res.end();
 		})
 		.catch((err) => {
-			db.end();
+			// db.end();
 			return res.end();
 		});
 };
@@ -314,7 +315,7 @@ export const calendarCreate2 = (req, res) => {
 			// return res.end();
 		})
 		.catch((err) => {
-			db.end();
+			// db.end();
 			return res.end();
 		});
 };
@@ -353,7 +354,7 @@ export const exerciseCreate = (req, res) => {
 		//     return res.end();
 		// })
 		.catch((err) => {
-			db.end();
+			// db.end();
 			return res.end();
 		});
 };
@@ -418,13 +419,13 @@ export const calendarInquiry = (req, res) => {
 			} else {
 				lastLevel = undefined;
 			}
-			return db.end();
+			// return db.end();
 		})
 		.then(() => {
 			res.JSON({ level: lastLevel, calendarData: calenadarData, today: createdDate });
 		})
 		.catch((err) => {
-			db.end();
+			// db.end();
 			return res.end();
 		});
 };
@@ -653,4 +654,12 @@ export const chartGet = (req, res) => {
 			db.end();
 			return res.end();
 		});
+};
+
+export const getDB = (req, res) => {
+	db.query("SELECT * FROM user WHERE user_id=?", 1).then((rows) => {
+		res.json({ data: rows });
+		console.log(rows[0]);
+	});
+	console.log("dbget");
 };

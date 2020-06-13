@@ -1,39 +1,53 @@
 import { handleActions, createAction } from "redux-actions";
 // createAction
-import { Map, fromJS } from "immutable";
+import { Map } from "immutable";
 import { pender } from "redux-pender";
 import * as api from "api/api";
 
 // action types
-const POST_COUNTER = "dbConnect/POST_COUNTER";
-const GET_COUNTER = "dbConnect/GET_COUNTER";
+const GET_DB = "dbConnect/GET_DB";
+const GET_USER = "dbConnect/GET_USER";
 
 // action creators
-export const postCounter = createAction(POST_COUNTER, api.postCounter);
-export const getCounter = createAction(GET_COUNTER, api.getCounter);
+export const getDb = createAction(GET_DB, api.getDb);
+export const getUser = createAction(GET_USER, api.getUser);
 
 // initial state
 const initialState = Map({
-    counter_id: "1",
-    setNum: 0,
-    amount: 0,
+	test: "",
+	user_id: 0,
+	user_name: "",
 });
 
 export default handleActions(
-    {
-        ...pender({
-            type: GET_COUNTER,
-            onSuccess: (state, action) => {
-                const {
-                    data: { data },
-                } = action.payload;
-                const data_ = fromJS(data);
-                return state
-                    .set("counter_id", data_.get("_id"))
-                    .set("setNum", data_.get("setCount").get("setNum"))
-                    .set("amount", data_.get("setCount").get("amount"));
-            },
-        }),
-    },
-    initialState
+	{
+		...pender({
+			type: GET_DB,
+			onSuccess: (state, action) => {
+				const {
+					data: { data },
+				} = action.payload;
+				console.log(data);
+				return state.set("user_id", data[0].user_id).set("user_name", data[0].user_name);
+			},
+			onFailure: (state, action) => {
+				return state.set("test", "hi");
+			},
+		}),
+		...pender({
+			type: GET_USER,
+			onSuccess: (state, action) => {
+				const {
+					data: { data },
+				} = action.payload;
+				console.log(action.payload);
+				if (data.user_id !== undefined) {
+					return state.set("user_id", data.user_id);
+				} else {
+					return;
+				}
+			},
+		}),
+	},
+	initialState
 );

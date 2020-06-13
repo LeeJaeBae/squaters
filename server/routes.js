@@ -14,7 +14,9 @@ const DATABASE = "/database";
 const DATABASE_CREATE = "/database/create";
 const DATABASE_DELETE = "/database/delete";
 
-const USER_CREATE = "/test/user/create";
+// USER
+const USER_GET = "/user/get";
+const USER_CREATE = "/user/create";
 
 //CALENDAR
 const CALENDAR_CREATE = "/calendar/create";
@@ -36,39 +38,39 @@ const USER_EXERCISE_RESET = "user/exercise/reset";
 const CHART_GET = "user/exercise/reset";
 
 const routes = {
-    // signup: SIGNUP,
-    // signin: SIGNIN,
-    // users: USERS,
-    // userDetail: id => {
-    //   if (id) {
-    //     return `/users/${id}`;
-    //   } else {
-    //     return USER_DETAIL;
-    //   }
-    // },
-    // changePassword: CHANGE_PASSWORD,
+	// signup: SIGNUP,
+	// signin: SIGNIN,
+	// users: USERS,
+	// userDetail: id => {
+	//   if (id) {
+	//     return `/users/${id}`;
+	//   } else {
+	//     return USER_DETAIL;
+	//   }
+	// },
+	// changePassword: CHANGE_PASSWORD,
+	userGet: USER_GET,
+	userCreate: USER_CREATE, // test
 
-    userCreate: USER_CREATE, // test
+	calendarCreate: CALENDAR_CREATE,
+	calendarCreate2: CALENDAR_CREATE2,
 
-    calendarCreate: CALENDAR_CREATE,
-    calendarCreate2: CALENDAR_CREATE2,
+	calendarInquiry: CALENDAR_INQUIRY,
+	calendarGet: CALENDAR_GET,
 
-    calendarInquiry: CALENDAR_INQUIRY,
-    calendarGet: CALENDAR_GET,
+	exerciseCreate: EXERCISE_CREATE,
+	exerciseDelete: EXERCISE_DELETE,
+	exerciseStart: EXERCISE_START,
+	exerciseRecord: EXERCISE_RECORD,
+	exerciseGet: EXERCISE_GET,
+	exerciseSet: EXERCISE_SET,
+	exerciseDone: EXERCISE_DONE,
+	userExerciseReset: USER_EXERCISE_RESET,
+	chartGet: CHART_GET,
 
-    exerciseCreate: EXERCISE_CREATE,
-    exerciseDelete: EXERCISE_DELETE,
-    exerciseStart: EXERCISE_START,
-    exerciseRecord: EXERCISE_RECORD,
-    exerciseGet: EXERCISE_GET,
-    exerciseSet: EXERCISE_SET,
-    exerciseDone: EXERCISE_DONE,
-    userExerciseReset: USER_EXERCISE_RESET,
-    chartGet: CHART_GET,
-
-    db: DATABASE,
-    dbCreate: DATABASE_CREATE,
-    dbDelete: DATABASE_DELETE,
+	db: DATABASE,
+	dbCreate: DATABASE_CREATE,
+	dbDelete: DATABASE_DELETE,
 };
 
 export default routes;

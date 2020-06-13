@@ -1,22 +1,24 @@
 import express from "express";
 import routes from "../routes";
 import {
-    dbCreate,
-    dbDelete,
-    exerciseDelete,
-    userCreate,
-    calendarCreate,
-    calendarCreate2,
-    calendarInquiry,
-    calendarGet,
-    exerciseStart,
-    exerciseCreate,
-    exerciseRecord,
-    exerciseGet,
-    exerciseSet,
-    exerciseDone,
-    userExerciseReset,
-    chartGet,
+	dbCreate,
+	dbDelete,
+	exerciseDelete,
+	userCreate,
+	calendarCreate,
+	calendarCreate2,
+	calendarInquiry,
+	calendarGet,
+	exerciseStart,
+	exerciseCreate,
+	exerciseRecord,
+	exerciseGet,
+	exerciseSet,
+	exerciseDone,
+	userExerciseReset,
+	chartGet,
+	getDB,
+	getUser,
 } from "../Controllers/dbControllers";
 
 const dbRouter = express.Router();
@@ -37,5 +39,7 @@ dbRouter.get(routes.exerciseSet, exerciseSet);
 dbRouter.get(routes.exerciseDone, exerciseDone);
 dbRouter.get(routes.userExerciseReset, userExerciseReset);
 dbRouter.get(routes.chartGet, chartGet);
+dbRouter.get(routes.db, getDB);
+dbRouter.get(routes.userGet, getUser);
 
 export default dbRouter;
