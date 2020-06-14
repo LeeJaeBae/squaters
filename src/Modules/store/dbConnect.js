@@ -17,6 +17,7 @@ const initialState = Map({
 	test: "",
 	user_id: 0,
 	user_name: "",
+	isDbOn: false,
 });
 
 export default handleActions(
@@ -42,7 +43,7 @@ export default handleActions(
 				} = action.payload;
 				console.log(action.payload);
 				if (data.user_id !== undefined) {
-					return state.set("user_id", data.user_id);
+					return state.set("user_id", data.user_id).set("isDbOn", true);
 				} else {
 					return;
 				}

@@ -2,7 +2,10 @@ import db from "../db";
 
 var user_no = 1;
 
+var countCalling = 0;
+
 export const dbCreate = (req, res) => {
+	console.log(++countCalling);
 	const createSql = {
 		user: `user_no          INT               NOT NULL     AUTO_INCREMENT,
            user_id               VARCHAR(20)    NOT NULL,
@@ -15,7 +18,7 @@ export const dbCreate = (req, res) => {
            calendar_id          INT(2)          NOT NULL,
            calendar_succeeded   TINYINT(1)      default FALSE,
            user_no              INT             NOT NULL,
-           PRIMARY KEY (calendar_no),
+           PRIMARY KEY (calendar_id),
            FOREIGN KEY (user_no) REFERENCES user (user_no) ON DELETE CASCADE`,
 		user_status: `user_no             INT             NOT NULL,
            user_level           INT(3)          default NULL,
@@ -34,7 +37,7 @@ export const dbCreate = (req, res) => {
            FOREIGN KEY (calendar_no) REFERENCES calendar (calendar_no) ON DELETE CASCADE`,
 		chart: `chart_no            INT             NOT NULL    AUTO_INCREMENT,
            chart_date           DATE            NOT NULL,
-           chart_reps           INT             NOT NULL,
+           chart_laps           INT             NOT NULL,
            user_no              INT             NOT NULL,
            PRIMARY KEY (chart_no),
            FOREIGN KEY (user_no) REFERENCES user (user_no) ON DELETE CASCADE`,
@@ -68,6 +71,7 @@ export const dbCreate = (req, res) => {
 };
 
 export const dbDelete = (req, res) => {
+	console.log(++countCalling);
 	const allTable = ["chart", "exercise", "user_status", "calendar", "user"];
 
 	(async function () {
@@ -82,23 +86,23 @@ export const dbDelete = (req, res) => {
 			);
 		}
 		return (() => {
-			// db.end();
 			res.end();
 		})();
 	})();
 };
 
 export const getUser = (req, res) => {
+	console.log(++countCalling);
 	console.log("--------------------------------------");
 	console.log("getUser");
 	console.log("--------------------------------------");
 	db.query(`SELECT * FROM user WHERE user_id=1`).then((row) => {
-		console.log(row);
 		res.json({ data: row[0] });
 	});
 };
 
 export const userCreate = (req, res) => {
+	console.log(++countCalling);
 	console.log("--------------------------------------");
 	console.log("userCrea†e");
 	console.log("--------------------------------------");
@@ -115,7 +119,7 @@ export const userCreate = (req, res) => {
 			}
 		})
 		.then(() => {
-			// db.query("INSERT INTO calendar (user_no, calendar_id) VALUES (?, ?)", [user_no, 0]);
+			db.query("INSERT INTO calendar (user_no, calendar_id) VALUES (?, ?)", [user_no, 0]);
 		})
 		.catch((err) => {
 			// db.end();
@@ -126,14 +130,14 @@ export const userCreate = (req, res) => {
 
 //  입렵한 레벨에 따라 캘린더 및 운동 생성 - 초급 1 중급 2 고급 사용자 레벨
 export const calendarCreate = (req, res) => {
-	let createLevel = 1;
-	let reps = 10 + createLevel * 7;
-
+	console.log(++countCalling);
+	let createLevel = req.query.level ? req.query.level : 1;
+	let laps = (10 + createLevel) * 7;
+	console.log(convertDate(new Date()));
 	function convertDate(date) {
-		let d = date,
-			month = "" + (d.getMonth() + 1),
-			day = "" + d.getDate(),
-			year = d.getFullYear();
+		let month = "" + (date.getMonth() + 1),
+			day = "" + date.getDate(),
+			year = date.getFullYear();
 		if (month.length < 2) month = "0" + month;
 		if (day.length < 2) day = "0" + day;
 
@@ -210,7 +214,7 @@ export const calendarCreate = (req, res) => {
 				for (let value of calendarNo) {
 					for (let j = 0; j < 5; j++) {
 						let type = true;
-						let temp = j % 2 === 1 ? [30, !type] : [reps, type];
+						let temp = j % 2 === 1 ? [30, !type] : [laps, type];
 						await db
 							.query(
 								"INSERT INTO exercise (calendar_no, exercise_data, exercise_type, exercise_success) VALUES (?, ?, ?, ?)",
@@ -229,7 +233,7 @@ export const calendarCreate = (req, res) => {
 								return res.end();
 							});
 					}
-					reps++;
+					laps++;
 				}
 			})();
 			return;
@@ -245,6 +249,7 @@ export const calendarCreate = (req, res) => {
 };
 
 export const exerciseDelete = (req, res) => {
+	console.log(++countCalling);
 	let calendarId = req.query.calendarId;
 	let exerciseNo = req.query.exerciseNo;
 
@@ -296,6 +301,7 @@ export const exerciseDelete = (req, res) => {
 };
 
 export const calendarCreate2 = (req, res) => {
+	console.log(++countCalling);
 	let calendarDate = req.query.calendarId;
 
 	db.query("SELECT EXISTS (SELECT * from exercise where calendar_no=?) as success", [
@@ -321,6 +327,7 @@ export const calendarCreate2 = (req, res) => {
 };
 
 export const exerciseCreate = (req, res) => {
+	console.log(++countCalling);
 	let calendarDate = req.query.calendarId;
 	let exerciseData = req.query.exerciseData;
 	let calendarNo;
@@ -360,11 +367,11 @@ export const exerciseCreate = (req, res) => {
 };
 
 export const calendarGet = (req, res) => {
+	console.log(++countCalling);
 	let calendarId = req.query.calendarId;
 
 	db.query(
-		"SELECT A.exercise_data, A.exercise_type FROM exercise A LEFT JOIN calendar B ON A.calendar_no = B.calendar_no " +
-			"WHERE calendar_id=? AND user_no=?",
+		"SELECT A.exercise_data, A.exercise_type FROM exercise A LEFT JOIN calendar B ON A.calendar_no = B.calendar_no WHERE calendar_id=? AND user_no=?",
 		[calendarId, user_no]
 	)
 		.then((rows) => {
@@ -379,6 +386,7 @@ export const calendarGet = (req, res) => {
 };
 
 export const calendarInquiry = (req, res) => {
+	console.log(++countCalling);
 	let lastLevel;
 	let calenadarData = [];
 	let createdDate;
@@ -431,6 +439,7 @@ export const calendarInquiry = (req, res) => {
 };
 
 export const exerciseStart = (req, res) => {
+	console.log(++countCalling);
 	let createdDate;
 	let createLevel;
 	let calendar = req.query.type;
@@ -560,7 +569,7 @@ export const userExerciseReset = (req, res) => {
 };
 
 export const exerciseDone = (req, res) => {
-	let totalreps = req.query.reps;
+	let totallaps = req.query.laps;
 	let succeedCalendar;
 
 	let today = (function (date) {
@@ -587,12 +596,12 @@ export const exerciseDone = (req, res) => {
 		.then((row) => {
 			if (row[0].chart_no === undefined) {
 				return db.query(
-					"INSERT INTO chart (chart_data, chart_reps, user_no) VALUES (?, ?, ?)",
-					[today, totalreps, user_no]
+					"INSERT INTO chart (chart_data, chart_laps, user_no) VALUES (?, ?, ?)",
+					[today, totallaps, user_no]
 				);
 			} else {
-				return db.query("UPDATE chart SET chart_reps = chart_reps+? WHERE chart_no=?", [
-					totalreps,
+				return db.query("UPDATE chart SET chart_laps = chart_laps+? WHERE chart_no=?", [
+					totallaps,
 					row[0].chart_no,
 				]);
 			}

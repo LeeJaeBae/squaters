@@ -42,5 +42,20 @@
 
 " todos
 
-1. 유저 생성시 동시에 캘린더 생성하게 유도
+1. 유저 생성시 동시에 캘린더 생성하게 유도 - 진행중
 2. 운동시작이나 캘린더 조회시 캘린더에 운동이 들어있지 않으면 생성 유도
+
+# 2020.06.14
+
+---
+
+### status
+
+1. dbController 정리 진행중
+    - exercise, home component 접근 시 db연동 구현 완료
+
+### todos
+
+    -   calendar, exercise set 조회 할 db 구현
+    -   calendar에 날짜 필요할 것 같음
+    -   chartJS, teachable react 연동

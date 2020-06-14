@@ -10,7 +10,7 @@ import { createUser } from "../../api/api";
 
 class HomeContainer extends Component {
 	componentDidMount() {
-		this.checkUser();
+		this.updateUser();
 		console.log(this);
 		const button = document.getElementsByClassName("button");
 		setTimeout(() => {
@@ -25,9 +25,11 @@ class HomeContainer extends Component {
 		}, 10);
 	}
 
-	checkUser = () => {
-		if (this.props.user_id === 0) {
-			createUser().then(this.props.dbConnect.getUser());
+	updateUser = () => {
+		const { getUser } = this.props.dbConnect;
+		getUser();
+		if (!this.props.isDbOn) {
+			createUser().then(getUser());
 		}
 	};
 	// 터치 이벤트 componenet가 죽은뒤에 애니메이션을 다루기 위하면 이동할때 시간차를 둠
@@ -94,6 +96,7 @@ class HomeContainer extends Component {
 const mapStateToProps = (state) => ({
 	test: state.dbConnect.get("test"),
 	user_id: state.dbConnect.get("user_id"),
+	isDbOn: state.dbConnect.get("isDbOn"),
 });
 
 const mapDispatchToProps = (dispatch) => ({
