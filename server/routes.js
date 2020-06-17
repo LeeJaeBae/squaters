@@ -21,10 +21,10 @@ const USER_CREATE = "/user/create";
 //CALENDAR
 const CALENDAR_CREATE = "/calendar/create";
 const CALENDAR_CREATE2 = "/calendar/create2";
-const CALENDAR_INQUIRY = "calendar/inquiry";
+const CALENDAR_INQUIRY = "/calendar/inquiry";
 const CALENDAR_GET = "/calendar/get";
-const EXERCISE_CREATE = "calendar/exercise/create";
-const EXERCISE_DELETE = "calendar/exercise/delete";
+const EXERCISE_CREATE = "/calendar/exercise/create";
+const EXERCISE_DELETE = "/calendar/exercise/delete";
 
 //EXERCISE
 const EXERCISE_START = "/exercise/start";
@@ -32,10 +32,10 @@ const EXERCISE_RECORD = "/exercise/record";
 const EXERCISE_GET = "/exercise/get";
 const EXERCISE_SET = "/exercise/set";
 const EXERCISE_DONE = "/exercise/done";
-const USER_EXERCISE_RESET = "user/exercise/reset";
+const USER_EXERCISE_RESET = "/user/exercise/reset";
 
 //CHART
-const CHART_GET = "user/exercise/reset";
+const CHART_GET = "/user/exercise/reset";
 
 const routes = {
 	// signup: SIGNUP,

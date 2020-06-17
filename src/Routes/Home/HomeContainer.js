@@ -11,6 +11,7 @@ import { createUser } from "../../api/api";
 class HomeContainer extends Component {
 	componentDidMount() {
 		this.updateUser();
+		this.props.dbConnect.getCalendar();
 		console.log(this);
 		const button = document.getElementsByClassName("button");
 		setTimeout(() => {

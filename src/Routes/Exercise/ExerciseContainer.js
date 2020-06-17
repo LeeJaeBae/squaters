@@ -4,7 +4,7 @@ import * as isLogin from "Modules/store/login";
 import * as dbConnect from "Modules/store/dbConnect";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-// import ExerciseSelectorPresenter from "./ExerciseSelectorPresenter";
+import ExerciseSelectorPresenter from "./ExerciseSelectorPresenter";
 // 이벤트 선언부
 
 class ExerciseContainer extends Component {
@@ -14,14 +14,24 @@ class ExerciseContainer extends Component {
 	};
 	// 시작 애니메이션
 	componentDidMount = () => {
-		const counter = document.getElementsByClassName("counter");
-		this.props.isDbOn
-			? setTimeout(() => {
-					counter[0].style.top = "0rem";
-					counter[0].style.opacity = "1";
-			  }, 10)
-			: this.props.history.goBack("/");
-
+		const { isDbOn, level } = this.props;
+		const counter = document.getElementsByClassName("counter")
+			? document.getElementsByClassName("counter")
+			: undefined;
+		console.log(counter);
+		isDbOn
+			? counter.length
+				? setTimeout(() => {
+						counter[0].style.top = "0rem";
+						counter[0].style.opacity = "1";
+				  }, 10)
+				: console.log()
+			: // : this.props.history.goBack("/");
+			  console.log("test");
+		if (level === "undefined") {
+		} else if (level === 0) {
+			this.setState({ isLoading: true });
+		}
 		// const camera = document.getElementsByClassName("camera");
 
 		//실제로 로딩이 되었을 때 isLoading이 true로 되어야 한다.
@@ -41,8 +51,11 @@ class ExerciseContainer extends Component {
 
 		return (
 			<>
-				{/* <ExerciseSelectorPresenter touchTopHandle={touchTopHandle} /> */}
-				<ExercisePresenter isLoading={isLoading} setNum={setNum} amount={amount} />
+				{isLoading ? (
+					<ExercisePresenter isLoading={isLoading} setNum={setNum} amount={amount} />
+				) : (
+					<ExerciseSelectorPresenter touchTopHandle={this.touchTopHandle} />
+				)}
 			</>
 		);
 	}
@@ -52,6 +65,7 @@ export default connect(
 	(state) => ({
 		user_id: state.dbConnect.get("user_id"),
 		isDbOn: state.dbConnect.get("isDbOn"),
+		level: state.dbConnect.get("calendar").level,
 	}),
 	(dispatch) => ({
 		isLogin: bindActionCreators(isLogin, dispatch),

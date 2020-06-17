@@ -18,7 +18,7 @@ export const dbCreate = (req, res) => {
            calendar_id          INT(2)          NOT NULL,
            calendar_succeeded   TINYINT(1)      default FALSE,
            user_no              INT             NOT NULL,
-           PRIMARY KEY (calendar_id),
+           PRIMARY KEY (calendar_no),
            FOREIGN KEY (user_no) REFERENCES user (user_no) ON DELETE CASCADE`,
 		user_status: `user_no             INT             NOT NULL,
            user_level           INT(3)          default NULL,
@@ -47,22 +47,15 @@ export const dbCreate = (req, res) => {
 
 	(async function () {
 		for (let tableName in createSql) {
-			await db
-				.query(`CREATE TABLE ${tableName}(${createSql[tableName]})${dbType}`)
-				.then(
-					(result) => {
-						console.log(`${tableName} Table created`);
-					},
-					(err) => {
-						res.end();
-						console.log(err);
-					}
-				)
-				.then(
-					db.query("desc user;").then((row) => {
-						res.send(row);
-					})
-				);
+			await db.query(`CREATE TABLE ${tableName}(${createSql[tableName]})${dbType}`).then(
+				(result) => {
+					console.log(`${tableName} Table created`);
+				},
+				(err) => {
+					res.end();
+					console.log(err);
+				}
+			);
 		}
 		return (() => {
 			res.end();
@@ -113,16 +106,24 @@ export const userCreate = (req, res) => {
 				db.query(
 					"INSERT INTO user (user_id, user_name, user_pw, user_phone) VALUES (?, ?, ?, ?)",
 					[user_id, "test", "1234", "01012341234"]
-				).then(console.log("insert"));
+				)
+					.then(() => {
+						db.query("INSERT INTO calendar (user_no, calendar_id) VALUES (?, ?)", [
+							user_no,
+							0,
+						]);
+					})
+					.then(() => {
+						db.query("INSERT INTO user_status (user_no) VALUES (?)", [user_no]).then(
+							console.log("insert")
+						);
+					});
 			} else {
 				console.log(`${user_id} is already inserted`);
+				res.end();
 			}
 		})
-		.then(() => {
-			db.query("INSERT INTO calendar (user_no, calendar_id) VALUES (?, ?)", [user_no, 0]);
-		})
 		.catch((err) => {
-			// db.end();
 			console.log(err);
 			return res.end();
 		});
@@ -368,7 +369,7 @@ export const exerciseCreate = (req, res) => {
 
 export const calendarGet = (req, res) => {
 	console.log(++countCalling);
-	let calendarId = req.query.calendarId;
+	let calendarId = req.query.calendarId ? req.query.calendarId : 0;
 
 	db.query(
 		"SELECT A.exercise_data, A.exercise_type FROM exercise A LEFT JOIN calendar B ON A.calendar_no = B.calendar_no WHERE calendar_id=? AND user_no=?",
@@ -385,11 +386,12 @@ export const calendarGet = (req, res) => {
 		});
 };
 
-export const calendarInquiry = (req, res) => {
+export const calendarInquiry = async (req, res) => {
 	console.log(++countCalling);
-	let lastLevel;
-	let calenadarData = [];
+
 	let createdDate;
+	let lastLevel;
+	let calendarData = [];
 
 	function convertDate(date) {
 		let d = date,
@@ -402,7 +404,8 @@ export const calendarInquiry = (req, res) => {
 		return `${year}-${month}-${day}`;
 	}
 
-	db.query("SELECT last_date, user_level FROM user_status WHERE user_no=?", [user_no])
+	await db
+		.query("SELECT last_date, user_level FROM user_status WHERE user_no=?", [user_no])
 		.then((rows) => {
 			if (rows[0].last_date !== null) {
 				createdDate =
@@ -410,32 +413,37 @@ export const calendarInquiry = (req, res) => {
 					(1000 * 3600 * 24);
 				if (createdDate === 30) {
 					lastLevel = rows[0].user_level++;
+					res.send({ level: lastLevel });
 				} else {
 					lastLevel = 0;
-					db.query(
-						"SELECT calendar_no, calendar_id, calendar_succeeded FROM calendar WHERE user_no=? AND calendar_no NOT IN(0)",
-						[user_no]
-					).then((rows) => {
+					db.query({
+						rowsAsArray: true,
+						sql:
+							"SELECT calendar_no, calendar_id, calendar_succeeded FROM calendar WHERE user_no=? AND calendar_id NOT IN(0)",
+						values: [user_no],
+					}).then((rows) => {
+						let returnArray = [];
 						for (let i = 0; i < rows.length; i++) {
-							calenadarData.push({
-								id: rows[i].calendar_id,
-								check: rows[i].calendar_succeeded,
-							});
+							returnArray.push({ id: rows[i][1], check: rows[i][2] });
 						}
+						Object.freeze(returnArray);
+						calendarData = returnArray;
+						res.json({
+							level: lastLevel,
+							calendarData: calendarData,
+							today: createdDate,
+						});
 					});
 				}
 			} else {
 				lastLevel = undefined;
+				res.json({ level: "undefined" });
 			}
-			// return db.end();
-		})
-		.then(() => {
-			res.JSON({ level: lastLevel, calendarData: calenadarData, today: createdDate });
 		})
 		.catch((err) => {
-			// db.end();
-			return res.end();
+			console.log(err);
 		});
+	await console.log(lastLevel, createdDate, calendarData);
 };
 
 export const exerciseStart = (req, res) => {
@@ -666,9 +674,29 @@ export const chartGet = (req, res) => {
 };
 
 export const getDB = (req, res) => {
-	db.query("SELECT * FROM user WHERE user_id=?", 1).then((rows) => {
-		res.json({ data: rows });
-		console.log(rows[0]);
-	});
-	console.log("dbget");
+	var data = [];
+	(function getQuery(data) {
+		db.query(`select * from user where user_no=1`).then((row) => {
+			data[0] = row[0];
+		});
+		db.query(`select * from calendar where user_no=1`).then((row) => {
+			data[1] = row[0];
+		});
+		db.query(`select * from user_status where user_no=1`).then((row) => {
+			data[2] = row[0];
+		});
+		db.query(`select * from chart where user_no=1`).then((row) => {
+			data[3] = row[0];
+		});
+		db.query(`select * from exercise where calendar_no=1`).then((row) => {
+			data[4] = row[0];
+		});
+	})(data);
+	var test = "";
+
+	for (const iterator of data) {
+		test += iterator;
+	}
+
+	res.send(test);
 };

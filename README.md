@@ -59,3 +59,21 @@
     -   calendar, exercise set 조회 할 db 구현
     -   calendar에 날짜 필요할 것 같음
     -   chartJS, teachable react 연동
+
+# 2020.06.15
+
+---
+
+### db 연동 진행상황
+
+    - Home에서 유저 조회 ? 유지 : 유저생성
+    - exercise에서 calendarInquriy ? Exercise : Selector
+        - Selector : 레벨 클릭 시 캘린더 생성 설정 완료
+                     Container에서 프로세스 정리해서 리로드해서 넘어가게 해야함
+
+### 해야 할 일
+
+    - 운동 카운트 될 때 db연결
+    - teachable 확인
+    - chartJS, calendar 조회, 결과 생성
+    - calendar/id?id=n 형태로 운동 수정 혹은 결과 확인 페이지 생성
