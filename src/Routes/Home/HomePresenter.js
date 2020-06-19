@@ -105,6 +105,7 @@ const HomePresenter = ({ touchHandle, ItouchHandle }) => {
 					</Button>
 				</Link>
 			))}
+			<div id="canvas"></div>
 		</>
 	);
 };

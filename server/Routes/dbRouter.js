@@ -20,6 +20,8 @@ import {
 	getDB,
 	getUser,
 } from "../Controllers/dbControllers";
+import * as metadata from "./my_model/metadata.json";
+import * as model from "./my_model/model.json";
 
 const dbRouter = express.Router();
 
@@ -41,5 +43,11 @@ dbRouter.get(routes.userExerciseReset, userExerciseReset);
 dbRouter.get(routes.chartGet, chartGet);
 dbRouter.get(routes.db, getDB);
 dbRouter.get(routes.userGet, getUser);
+dbRouter.get("/my_model/metadata", (req, res) => {
+	res.json(metadata);
+});
+dbRouter.get("/my_model/model", (req, res) => {
+	res.json(model);
+});
 
 export default dbRouter;

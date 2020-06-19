@@ -13,3 +13,6 @@ export const getCalendar = () => api.get("/calendar/inquiry");
 export const createDb = () => api.get("/database/create");
 export const createUser = () => api.get("/user/create", { params: { user_id: 1 } });
 export const createCalendar = (level) => api.get("/calendar/create", { params: { level: level } });
+
+export const model = () => api.get("/my_model/model");
+export const metadata = () => api.get("/my_model/metadata");

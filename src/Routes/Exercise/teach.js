@@ -1,17 +1,25 @@
 /* eslint-disable no-undef */
 let URL = "./my_model/";
 let model, webcam, ctx, labelContainer, maxPredictions;
+var cameraValue = { x: 0, y: 0 };
+var value;
 
-export default function onCam(camera) {
-	cameraValue = camera;
-	init();
+export default async function onCam(decrement) {
+	let test;
+	try {
+		await init(decrement);
+	} catch (error) {
+		console.log(error);
+	} finally {
+		cameraValue = test;
+	}
 }
 // More API functions here:
 // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/pose
 
 // the link to your model provided by Teachable Machine export panel
 
-async function init() {
+async function init(decrement) {
 	const modelURL = URL + "model.json";
 	const metadataURL = URL + "metadata.json";
 
@@ -35,18 +43,20 @@ async function init() {
 	canvas.width = sizeX;
 	canvas.height = sizeY;
 	ctx = canvas.getContext("2d");
+	labelContainer = { childNodes: [] };
 	labelContainer = document.getElementById("label-container");
-	labelContainer.style.display = "block";
+	labelContainer.style.display = "hidden";
 	for (let i = 0; i < maxPredictions; i++) {
 		// and class labels
 		labelContainer.appendChild(document.createElement("div"));
 	}
-	async function loop(timestamp) {
+	async function loop(decrement) {
 		webcam.update(); // update the webcam frame
-		await predict();
+		await predict(decrement);
 		window.requestAnimationFrame(loop);
 	}
-	async function predict() {
+	// 반복되는
+	async function predict(decrement) {
 		// Prediction #1: run input through posenet
 		// estimatePose can take in an image, video or canvas html element
 		const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
@@ -57,41 +67,54 @@ async function init() {
 			const classPrediction =
 				prediction[i].className + ": " + prediction[i].probability.toFixed(2);
 			labelContainer.childNodes[i].innerHTML = classPrediction;
+			// squat
 		}
+		let button = { style: "" };
+		button = document.getElementById("button");
+
+		if (prediction[0].probability >= 0.9) {
+			button.style.backgroundColor = "white";
+			// decrement();
+			console.log(prediction[0].probability, prediction[1].probability);
+		} else {
+		}
+
+		let camera = document.getElementById("camera");
+		value = button.getBoundingClientRect();
+		cameraValue = camera.getBoundingClientRect();
 
 		// finally draw the poses
-		drawPose(pose, webcam);
+		drawPose(pose, webcam, button);
 	}
-	let status = "red";
-
-	function drawPose(pose, webcam) {
-		if (webcam.canvas) {
-			ctx.drawImage(webcam.canvas, 0, 0);
-			// if (pose !== undefined) {
-			// 	if (
-			// 		cameraValue.x + pose.keypoints[10].position.x > value.x &&
-			// 		cameraValue.x + pose.keypoints[10].position.x < value.x + value.width
-			// 	) {
-			// 		if (
-			// 			cameraValue.y + pose.keypoints[10].position.y > value.y &&
-			// 			cameraValue.y + pose.keypoints[10].position.y < value.y + value.height
-			// 		) {
-			// 			button.style.backgroundColor = status;
-			// 		}
-			// 	} else {
-			// 		if (button.style.backgroundColor === "red") {
-			// 			status = "black"; // 중지 메서드
-			// 		} else if (button.style.backgroundColor === "black") {
-			// 			status = "red"; // 진행 메서드
-			// 		}
-			// 	}
-			// }
+}
+let status = "red";
+function drawPose(pose, webcam, button) {
+	if (webcam.canvas) {
+		ctx.drawImage(webcam.canvas, 0, 0);
+		if (pose !== undefined) {
+			if (
+				cameraValue.x + pose.keypoints[10].position.x > value.x &&
+				cameraValue.x + pose.keypoints[10].position.x < value.x + value.width
+			) {
+				if (
+					cameraValue.y + pose.keypoints[10].position.y > value.y &&
+					cameraValue.y + pose.keypoints[10].position.y < value.y + value.height
+				) {
+					button.style.backgroundColor = status;
+				}
+			} else {
+				if (button.style.backgroundColor === "red") {
+					status = "black"; // 중지 메서드
+				} else if (button.style.backgroundColor === "black") {
+					status = "red"; // 진행 메서드
+				}
+			}
 		}
-		// draw the keypoints and skeleton
-		if (pose) {
-			const minPartConfidence = 0.5;
-			tmPose.drawKeypoints(pose.keypoints, minPartConfidence, ctx);
-			tmPose.drawSkeleton(pose.keypoints, minPartConfidence, ctx);
-		}
+	}
+	// draw the keypoints and skeleton
+	if (pose) {
+		const minPartConfidence = 0.5;
+		tmPose.drawKeypoints(pose.keypoints, minPartConfidence, ctx);
+		tmPose.drawSkeleton(pose.keypoints, minPartConfidence, ctx);
 	}
 }

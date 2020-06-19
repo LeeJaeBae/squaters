@@ -3,7 +3,7 @@ import styled from "styled-components";
 import PropTypes from "prop-types";
 import ExerciseSelectorPresenter from "./ExerciseSelectorPresenter";
 // import { Link } from "react-router-dom";
-import onCam from "./teach";
+// import onCam from "./teach";
 
 const Counter = styled.div`
 	border-radius: 1.3rem;
@@ -73,6 +73,7 @@ const ExercisePresenter = ({
 	touchTopHandle,
 	createCalendar,
 	increment,
+	onCam,
 }) => {
 	return isLoading === 0 ? (
 		<>
@@ -100,9 +101,28 @@ const ExercisePresenter = ({
 				<button onClick={increment}></button>
 			</Counter>
 			{isLoading === 0 ? (
-				<Camera id="camera" onLoad={onCam(this)}>
-					<Button>button</Button>
-					<canvas id="canvas"></canvas>
+				<Camera
+					id="camera"
+					onLoad={(function () {
+						onCam();
+					})()}
+				>
+					<Button
+						id="button"
+						onClick={() => {
+							let canvas = document.getElementById("canvas");
+							if (canvas.attributes[1].value === "false") {
+								canvas.attributes[1].value = "true";
+								console.log(canvas.attributes[1].value);
+							} else {
+								canvas.attributes[1].value = "false";
+								onCam();
+							}
+						}}
+					>
+						button
+					</Button>
+					<canvas id="canvas" attr="false"></canvas>
 				</Camera>
 			) : (
 				<Load>Loading</Load>

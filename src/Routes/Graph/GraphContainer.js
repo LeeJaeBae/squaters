@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import GraphPresenter from "./GraphPresenter";
-import * as isLogin from "Modules/store/login";
+import * as isLogin from "../../Modules/store/login";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 // 이벤트 선언부
@@ -143,22 +143,22 @@ import { bindActionCreators } from "redux";
 // };
 
 class GraphContainer extends Component {
-    componentDidMount() {
-        const { islogin, history } = this.props;
-        if (!islogin) {
-            history.push("/login");
-        }
-    }
-    render() {
-        return <GraphPresenter />;
-    }
+	componentDidMount() {
+		const { islogin, history } = this.props;
+		if (!islogin) {
+			history.push("/login");
+		}
+	}
+	render() {
+		return <GraphPresenter />;
+	}
 }
 
 export default connect(
-    (state) => ({
-        islogin: state.login.get("loginValue"),
-    }),
-    (dispatch) => ({
-        isLogin: bindActionCreators(isLogin, dispatch),
-    })
+	(state) => ({
+		islogin: state.login.get("loginValue"),
+	}),
+	(dispatch) => ({
+		isLogin: bindActionCreators(isLogin, dispatch),
+	})
 )(GraphContainer);

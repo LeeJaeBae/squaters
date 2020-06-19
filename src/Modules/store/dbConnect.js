@@ -2,7 +2,7 @@ import { handleActions, createAction } from "redux-actions";
 // createAction
 import { Map } from "immutable";
 import { pender } from "redux-pender";
-import * as api from "api/api";
+import * as api from "../../api/api";
 
 // action types
 const GET_DB = "dbConnect/GET_DB";

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import HomePresenter from "./HomePresenter";
-import * as isLogin from "Modules/store/login";
-import * as dbConnect from "Modules/store/dbConnect";
+import * as isLogin from "../../Modules/store/login";
+import * as dbConnect from "../../Modules/store/dbConnect";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { createUser } from "../../api/api";
