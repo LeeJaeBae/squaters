@@ -4,58 +4,74 @@ import * as isLogin from "Modules/store/login";
 import * as dbConnect from "Modules/store/dbConnect";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import ExerciseSelectorPresenter from "./ExerciseSelectorPresenter";
+import { createCalendar } from "../../api/api";
 // 이벤트 선언부
 
 class ExerciseContainer extends Component {
 	// 카메라 로딩의 상태 제어
 	state = {
-		isLoading: false,
+		checking: { db: false, calendar: false },
+	};
+	// db connecting check & get data to props
+	checkingStatus = () => {
+		const { isDbOn, level } = this.props;
+		const { getUser, getCalendar } = this.props.dbConnect;
+		const {
+			checking: { db, calendar },
+		} = this.state;
+		const { push } = this.props.history;
+		isDbOn ? console.log() : getUser();
+		if (level === "") {
+			getCalendar();
+			this.props.history.push("/");
+		}
 	};
 	// 시작 애니메이션
 	componentDidMount = () => {
-		const { isDbOn, level } = this.props;
-		const counter = document.getElementsByClassName("counter")
-			? document.getElementsByClassName("counter")
-			: undefined;
-		console.log(counter);
-		isDbOn
-			? counter.length
-				? setTimeout(() => {
-						counter[0].style.top = "0rem";
-						counter[0].style.opacity = "1";
-				  }, 10)
-				: console.log()
-			: // : this.props.history.goBack("/");
-			  console.log("test");
-		if (level === "undefined") {
-		} else if (level === 0) {
-			this.setState({ isLoading: true });
-		}
-		// const camera = document.getElementsByClassName("camera");
-
-		//실제로 로딩이 되었을 때 isLoading이 true로 되어야 한다.
-		// setTimeout(() => {
-		//     this.setState({ isLoading: true });
-		// }, 2000);
+		this.checkingStatus();
+		// const counter = document.getElementById("counter");
+		// ? document.getElementsByClassName("counter")
+		// : undefined;
+		// isDbOn
+		// 	? counter
+		// 		? setTimeout(() => {
+		// 				counter[0].style.top = "0rem";
+		// 				counter[0].style.opacity = "1";
+		// 		  }, 10)
+		// 		: console.log(counter)
+		// 	: console.log();
+		// : this.props.history.goBack("/");
 	};
+	componentDidUpdate(prevProps) {
+		// 전형적인 사용 사례 (props 비교를 잊지 마세요)
+		if (this.props.level !== prevProps.level) {
+		}
+	}
 	touchTopHandle = (e) => {
 		// 버튼의 부모 -> 즉 스크롤 기능을 하는 div 참조
 		const eParent = e.currentTarget.parentElement;
 		eParent.scrollTop = 0;
 	};
 
-	render() {
-		const { isLoading } = this.state;
-		const { setNum, amount } = this.props;
+	createCalendar = (level) => {
+		createCalendar(level);
+		this.props.dbConnect.getCalendar();
+		this.props.history.push("/exercise");
+	};
 
+	render() {
+		const { count, level } = this.props;
+		const { increment } = this.props.dbConnect;
 		return (
 			<>
-				{isLoading ? (
-					<ExercisePresenter isLoading={isLoading} setNum={setNum} amount={amount} />
-				) : (
-					<ExerciseSelectorPresenter touchTopHandle={this.touchTopHandle} />
-				)}
+				<ExercisePresenter
+					isLoading={level}
+					setNum={count}
+					amount={count}
+					touchTopHandle={this.touchTopHandle}
+					createCalendar={this.createCalendar}
+					increment={() => increment()}
+				/>
 			</>
 		);
 	}
@@ -66,6 +82,7 @@ export default connect(
 		user_id: state.dbConnect.get("user_id"),
 		isDbOn: state.dbConnect.get("isDbOn"),
 		level: state.dbConnect.get("calendar").level,
+		count: state.dbConnect.get("count"),
 	}),
 	(dispatch) => ({
 		isLogin: bindActionCreators(isLogin, dispatch),

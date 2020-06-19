@@ -88,7 +88,6 @@ class HomeContainer extends Component {
 		return (
 			<>
 				<HomePresenter />
-				{this.state}
 			</>
 		);
 	}

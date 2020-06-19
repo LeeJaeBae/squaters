@@ -8,11 +8,13 @@ import * as api from "api/api";
 const GET_DB = "dbConnect/GET_DB";
 const GET_USER = "dbConnect/GET_USER";
 const GET_CALENDAR = "dbConnect/GET_CALENDAR";
+const INCREMENT = "dbConnect/INCREMENT";
 
 // action creators
 export const getDb = createAction(GET_DB, api.getDb);
 export const getUser = createAction(GET_USER, api.getUser);
 export const getCalendar = createAction(GET_CALENDAR, api.getCalendar);
+export const increment = createAction(INCREMENT);
 
 // initial state
 const initialState = Map({
@@ -21,6 +23,7 @@ const initialState = Map({
 	user_name: "",
 	isDbOn: false,
 	calendar: { level: "", calendarData: [], lastDate: "" },
+	count: 0,
 });
 
 export default handleActions(
@@ -70,6 +73,10 @@ export default handleActions(
 				}
 			},
 		}),
+		[INCREMENT]: (state, action) => {
+			let count = state.get("count");
+			return state.set("count", count + 1);
+		},
 	},
 	initialState
 );

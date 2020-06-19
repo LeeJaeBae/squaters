@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { createCalendar } from "../../api/api";
 
 // 칸의 개수 입력 ->
 const obj = new Array(20);
@@ -65,7 +64,7 @@ const Top = styled.div`
 	}
 `;
 
-const ExerciseSelectorPresenter = ({ touchTopHandle }) => {
+const ExerciseSelectorPresenter = ({ touchTopHandle, createCalendar }) => {
 	return (
 		<Wrapper>
 			{obj.map((element, index) => (
