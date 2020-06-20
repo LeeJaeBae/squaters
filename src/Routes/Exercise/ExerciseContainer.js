@@ -11,13 +11,10 @@ import * as tmPose from "@teachablemachine/pose";
 // 이벤트 선언부
 
 class ExerciseContainer extends Component {
-	constructor(props) {
-		super(props);
-		this.webcam = "";
-	}
 	// 카메라 로딩의 상태 제어
 	state = {
 		checking: { db: false, calendar: false },
+		unmount: false,
 	};
 	// db connecting check & get data to props
 	checkingStatus = () => {
@@ -35,9 +32,8 @@ class ExerciseContainer extends Component {
 	};
 
 	// 시작 애니메이션
-	componentDidMount = async () => {
+	componentDidMount = () => {
 		this.checkingStatus();
-
 		// const counter = document.getElementById("counter");
 		// ? document.getElementsByClassName("counter")
 		// : undefined;
@@ -51,17 +47,16 @@ class ExerciseContainer extends Component {
 		// 	: console.log();
 		// : this.props.history.goBack("/");
 	};
-	componentDidUpdate(prevProps) {
-		// 전형적인 사용 사례 (props 비교를 잊지 마세요)
-		if (this.props.level !== prevProps.level) {
-		}
+	// componentDidUpdate(prevProps) {
+	// 	// 전형적인 사용 사례 (props 비교를 잊지 마세요)
+	// 	if (this.props.level !== prevProps.level) {
+	// 	}
+	// }
+	componentWillUnmount() {
+		this.setState({ unmount: true });
+
+		console.log(this.state.unmount);
 	}
-	componentWillUnmount = async () => {
-		await this.webcam.pause();
-		await this.webcam.stop();
-		window.requestAnimationFrame(() => {});
-		console.log("unmount");
-	};
 	touchTopHandle = (e) => {
 		// 버튼의 부모 -> 즉 스크롤 기능을 하는 div 참조
 		const eParent = e.currentTarget.parentElement;
@@ -74,27 +69,33 @@ class ExerciseContainer extends Component {
 		this.props.history.push("/exercise");
 	};
 
+	deleteTeachable = async () => {};
 	createTeachable = async () => {
 		const { increment } = this.props.dbConnect;
-
+		const { unmount } = this.state;
+		let webcam;
 		let model;
 		let ctx;
-		let check = false;
-
+		let check = true;
+		let time = 0;
 		const URL = "http://localhost:4000/my_model/";
 		model = await tmPose.load(URL + "model", URL + "metadata");
 
 		const size = 288;
-		this.webcam = new tmPose.Webcam(size, size, true);
-		await this.webcam.setup();
-		await this.webcam.play();
-		window.requestAnimationFrame(loop);
-		let webcam = this.webcam;
-		const canvas = document.getElementById("canvas");
-		canvas.width = size;
-		canvas.height = size;
-		ctx = canvas.getContext("2d");
+		webcam = new tmPose.Webcam(size, size, true);
+		await webcam.setup();
+		await webcam.play();
 
+		window.requestAnimationFrame(loop);
+
+		const canvas = document.getElementById("canvas");
+		try {
+			canvas.width = size;
+			canvas.height = size;
+			ctx = canvas.getContext("2d");
+		} catch (error) {
+			console.log(error);
+		}
 		async function loop() {
 			webcam.update();
 			if (await predict()) {
@@ -108,24 +109,24 @@ class ExerciseContainer extends Component {
 			const { probability: squat } = prediction[0];
 			const { probability: stand } = prediction[1];
 			// const { score } = pose;
-			// try {
-			// 	console.log(pose.keypoints[0].position);
-			// } catch (e) {
-			// 	console.log(e);
-			// }
-			console.log(pose);
+
+			try {
+				// console.log(pose.keypoints[0].position);
+			} catch (e) {}
 			drawPose(pose, webcam);
-			setTimeout(() => {
-				if (squat >= 0.94 && check) {
-					increment();
-					check = false;
-					console.log(stand, squat);
-				} else if (stand >= 0.9) {
-					check = true;
-				}
-			}, 2000);
+			if (check && squat > 1) {
+				console.log(squat, "squat");
+				increment();
+				check = false;
+			}
+			if (stand > 1.5) console.log(stand);
+			if (!check && stand >= 1.5) {
+				console.log(stand, "stand");
+				check = true;
+			}
 
 			if (await stop()) {
+				console.log("stop");
 				return true;
 			} else {
 				return false;
@@ -138,12 +139,12 @@ class ExerciseContainer extends Component {
 			}
 			if (pose) {
 				const minPartConfidence = 0.5;
-				// tmPose.drawKeypoints(pose.keypoints, minPartConfidence, ctx, 0.1);
+				// tmPose.drawKeypoints(pose.keypoints, minPartConfidence, ctx);
 				tmPose.drawSkeleton(pose.keypoints, minPartConfidence, ctx);
 			}
 		}
 		async function stop() {
-			if (canvas.attributes[1].value === "true") {
+			if (canvas.attributes[1].value === "true" || unmount) {
 				await webcam.pause();
 				await webcam.stop();
 

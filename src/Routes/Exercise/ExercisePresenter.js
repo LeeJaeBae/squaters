@@ -104,7 +104,9 @@ const ExercisePresenter = ({
 				<Camera
 					id="camera"
 					onLoad={(function () {
-						onCam();
+						try {
+							onCam();
+						} catch (error) {}
 					})()}
 				>
 					<Button
@@ -116,7 +118,9 @@ const ExercisePresenter = ({
 								console.log(canvas.attributes[1].value);
 							} else {
 								canvas.attributes[1].value = "false";
-								onCam();
+								try {
+									onCam();
+								} catch (error) {}
 							}
 						}}
 					>

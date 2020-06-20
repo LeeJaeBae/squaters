@@ -31,7 +31,25 @@ export default () => (
 			{/* 임시 헤더 끝 */}
 			<Header>
 				<Link to="/">
-					<img alt="" src="/yoga_white.png" width="120px" height="100px" />
+					<img
+						alt=""
+						src="/yoga_white.png"
+						width="120px"
+						height="100px"
+						onClick={() => {
+							let canvas = document.getElementById("canvas");
+							try {
+								if (canvas) {
+									if (canvas.attributes[1].value === "false") {
+										canvas.attributes[1].value = "true";
+										console.log(canvas.attributes[1].value);
+									}
+								}
+							} catch (error) {
+								console.log(error);
+							}
+						}}
+					/>
 				</Link>
 			</Header>
 			<Container>
