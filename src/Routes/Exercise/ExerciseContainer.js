@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 import React, { Component } from "react";
 import ExercisePresenter from "./ExercisePresenter";
 import * as isLogin from "../../Modules/store/login";
@@ -11,11 +12,22 @@ import * as tmPose from "@teachablemachine/pose";
 // 이벤트 선언부
 
 class ExerciseContainer extends Component {
-	// 카메라 로딩의 상태 제어
-	state = {
-		checking: { db: false, calendar: false },
-		unmount: false,
-	};
+	constructor(props) {
+		super(props);
+		this.tmObj = {};
+		this.exerciseStatus = {};
+		this.state = {
+			checking: { db: false, calendar: false },
+			statusExercise: "squat",
+			count: 10,
+			set: 3,
+		};
+		this.loop = "";
+		this.countReducer = this.countReducer.bind(this);
+		this.checkingExercise = this.checkingExercise.bind(this);
+		this.toggleExercise = this.toggleExercise.bind(this);
+		this.stopTeachable = this.stopTeachable.bind(this);
+	}
 	// db connecting check & get data to props
 	checkingStatus = () => {
 		const { isDbOn, level } = this.props;
@@ -24,149 +36,152 @@ class ExerciseContainer extends Component {
 			checking: { db, calendar },
 		} = this.state;
 		const { push } = this.props.history;
-		isDbOn ? console.log() : getUser();
+		isDbOn ? console.log("on") : getUser();
 		if (level === "") {
 			getCalendar();
-			this.props.history.push("/");
+			push("/");
 		}
 	};
 
-	// 시작 애니메이션
-	componentDidMount = () => {
+	componentDidMount = async () => {
 		this.checkingStatus();
-		// const counter = document.getElementById("counter");
-		// ? document.getElementsByClassName("counter")
-		// : undefined;
-		// isDbOn
-		// 	? counter
-		// 		? setTimeout(() => {
-		// 				counter[0].style.top = "0rem";
-		// 				counter[0].style.opacity = "1";
-		// 		  }, 10)
-		// 		: console.log(counter)
-		// 	: console.log();
-		// : this.props.history.goBack("/");
-	};
-	// componentDidUpdate(prevProps) {
-	// 	// 전형적인 사용 사례 (props 비교를 잊지 마세요)
-	// 	if (this.props.level !== prevProps.level) {
-	// 	}
-	// }
-	componentWillUnmount() {
-		this.setState({ unmount: true });
+		if (this.props.level !== 0) return;
+		this.tmObj = await this.createTeachable();
+		const { model, webcam } = this.tmObj;
+		const { predict } = this;
+		const canvas = document.getElementById("canvas");
+		const { checkingExercise, toggleExercise, countReducer } = this;
 
-		console.log(this.state.unmount);
-	}
+		try {
+			if (webcam !== undefined) {
+				canvas.width = 288;
+				canvas.height = 288;
+				const ctx = await canvas.getContext("2d");
+				await webcam.setup();
+				await webcam.play();
+
+				async function loop() {
+					if (webcam) {
+						await webcam.update();
+						const values = await predict(model, webcam, ctx);
+
+						if (values[0].toFixed(2) == 1.0) {
+							if (checkingExercise() === "stand") {
+								countReducer();
+							}
+							toggleExercise("squat");
+						} else if (values[1].toFixed(2) == 1.0) {
+							toggleExercise("stand");
+						}
+					}
+					window.requestAnimationFrame(loop.bind(this));
+				}
+				this.loop = loop.bind(this);
+				// loop.prototype.state = this.state;
+				window.requestAnimationFrame(this.loop);
+			}
+		} catch (error) {}
+	};
+	componentDidUpdate = (prevProps, prevState) => {
+		if (prevState.count !== this.state.count) {
+		}
+		if (this.state.count === 0) {
+			this.setState({ count: 10 });
+			this.setState({ set: this.state.set - 1 });
+		}
+	};
+
+	componentWillUnmount = () => {
+		this.stopTeachable(this.tmObj.webcam);
+	};
+
 	touchTopHandle = (e) => {
 		// 버튼의 부모 -> 즉 스크롤 기능을 하는 div 참조
 		const eParent = e.currentTarget.parentElement;
 		eParent.scrollTop = 0;
 	};
-
 	createCalendar = (level) => {
 		createCalendar(level);
 		this.props.dbConnect.getCalendar();
 		this.props.history.push("/exercise");
 	};
 
-	deleteTeachable = async () => {};
-	createTeachable = async () => {
-		const { increment } = this.props.dbConnect;
-		const { unmount } = this.state;
-		let webcam;
-		let model;
-		let ctx;
-		let check = true;
-		let time = 0;
+	/*
+		1. createTeachable
+		2. loopTeachable(in componentDidMount)
+		3. predictTeachable
+	*/
+
+	async createTeachable() {
+		let webcam, model;
+
 		const URL = "http://localhost:4000/my_model/";
 		model = await tmPose.load(URL + "model", URL + "metadata");
-
 		const size = 288;
 		webcam = new tmPose.Webcam(size, size, true);
-		await webcam.setup();
-		await webcam.play();
 
-		window.requestAnimationFrame(loop);
+		let tmObj = { model: model, webcam: webcam };
+		return tmObj;
+	}
 
-		const canvas = document.getElementById("canvas");
-		try {
-			canvas.width = size;
-			canvas.height = size;
-			ctx = canvas.getContext("2d");
-		} catch (error) {
-			console.log(error);
-		}
-		async function loop() {
-			webcam.update();
-			if (await predict()) {
-				return;
-			}
-			window.requestAnimationFrame(loop);
-		}
-		async function predict() {
-			const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
-			const prediction = await model.predict(posenetOutput);
-			const { probability: squat } = prediction[0];
-			const { probability: stand } = prediction[1];
-			// const { score } = pose;
+	async predict(model, webcam, ctx) {
+		const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
+		const prediction = await model.predict(posenetOutput);
+		const { probability: squat } = prediction[0];
+		const { probability: stand } = prediction[1];
+		drawPose(pose, webcam);
+		return [squat, stand];
 
+		async function drawPose(pose, webcam) {
 			try {
-				// console.log(pose.keypoints[0].position);
-			} catch (e) {}
-			drawPose(pose, webcam);
-			if (check && squat > 1) {
-				console.log(squat, "squat");
-				increment();
-				check = false;
-			}
-			if (stand > 1.5) console.log(stand);
-			if (!check && stand >= 1.5) {
-				console.log(stand, "stand");
-				check = true;
-			}
-
-			if (await stop()) {
-				console.log("stop");
-				return true;
-			} else {
-				return false;
-			}
-		}
-
-		function drawPose(pose, webcam) {
-			if (webcam.canvas) {
-				ctx.drawImage(webcam.canvas, 0, 0);
-			}
-			if (pose) {
-				const minPartConfidence = 0.5;
-				// tmPose.drawKeypoints(pose.keypoints, minPartConfidence, ctx);
-				tmPose.drawSkeleton(pose.keypoints, minPartConfidence, ctx);
-			}
-		}
-		async function stop() {
-			if (canvas.attributes[1].value === "true" || unmount) {
-				await webcam.pause();
+				if (webcam.canvas) {
+					ctx.drawImage(webcam.canvas, 0, 0);
+				}
+				if (pose) {
+					const minPartConfidence = 0.5;
+					tmPose.drawSkeleton(pose.keypoints, minPartConfidence, ctx);
+				}
+			} catch (e) {
+				console.log(e);
 				await webcam.stop();
-
-				return true;
-			} else {
-				return false;
 			}
 		}
-	};
+	}
+	toggleExercise(string) {
+		const { statusExercise } = this.state;
+		if (statusExercise === "stand") {
+			this.setState({ statusExercise: string });
+		} else {
+			this.setState({ statusExercise: string });
+		}
+	}
+	checkingExercise() {
+		const { statusExercise } = this.state;
+		return statusExercise;
+	}
+	countReducer() {
+		const { count } = this.state;
+		this.setState({ count: count - 1 });
+	}
+	async stopTeachable(webcam) {
+		try {
+			webcam.pause();
+			webcam.stop();
+		} catch (error) {}
+	}
 
 	render() {
-		const { count, level } = this.props;
+		const { level, count, set } = this.props;
 		const { increment } = this.props.dbConnect;
 		return (
 			<>
 				<ExercisePresenter
 					isLoading={level}
-					setNum={count}
-					amount={count}
+					setNum={this.state.set}
+					amount={this.state.count}
 					touchTopHandle={this.touchTopHandle}
 					createCalendar={this.createCalendar}
-					increment={() => increment()}
+					increment={increment}
 					onCam={this.createTeachable}
 				/>
 			</>

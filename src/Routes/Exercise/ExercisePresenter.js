@@ -66,6 +66,11 @@ const Button = styled.div`
 	z-index: 2000;
 `;
 
+const Canvas = styled.canvas`
+	position: relative;
+	top: -60px;
+`;
+
 const ExercisePresenter = ({
 	isLoading,
 	setNum,
@@ -109,24 +114,8 @@ const ExercisePresenter = ({
 						} catch (error) {}
 					})()}
 				>
-					<Button
-						id="button"
-						onClick={() => {
-							let canvas = document.getElementById("canvas");
-							if (canvas.attributes[1].value === "false") {
-								canvas.attributes[1].value = "true";
-								console.log(canvas.attributes[1].value);
-							} else {
-								canvas.attributes[1].value = "false";
-								try {
-									onCam();
-								} catch (error) {}
-							}
-						}}
-					>
-						button
-					</Button>
-					<canvas id="canvas" attr="false"></canvas>
+					<Button id="button">button</Button>
+					<Canvas id="canvas" attr="false"></Canvas>
 				</Camera>
 			) : (
 				<Load>Loading</Load>

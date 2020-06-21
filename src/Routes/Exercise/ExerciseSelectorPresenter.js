@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { Link } from "react-router-dom";
 
 // 칸의 개수 입력 ->
 const obj = new Array(20);
@@ -68,14 +69,16 @@ const ExerciseSelectorPresenter = ({ touchTopHandle, createCalendar }) => {
 	return (
 		<Wrapper>
 			{obj.map((element, index) => (
-				<Emspace
-					key={index}
-					onClick={function () {
-						createCalendar(element.num);
-					}}
-				>
-					<p>Level {element.num}</p>
-				</Emspace>
+				<Link to="/">
+					<Emspace
+						key={index}
+						onClick={function () {
+							createCalendar(element.num);
+						}}
+					>
+						<p>Level {element.num}</p>
+					</Emspace>
+				</Link>
 			))}
 			<Top className={top.classI} onTouchStart={touchTopHandle} onClick={touchTopHandle} />
 		</Wrapper>

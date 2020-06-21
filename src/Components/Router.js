@@ -45,9 +45,7 @@ export default () => (
 										console.log(canvas.attributes[1].value);
 									}
 								}
-							} catch (error) {
-								console.log(error);
-							}
+							} catch (error) {}
 						}}
 					/>
 				</Link>
