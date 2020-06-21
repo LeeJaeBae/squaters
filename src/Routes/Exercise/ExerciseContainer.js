@@ -19,8 +19,8 @@ class ExerciseContainer extends Component {
 		this.state = {
 			checking: { db: false, calendar: false },
 			statusExercise: "squat",
-			count: 10,
-			set: 3,
+			count: 1,
+			set: 1,
 		};
 		this.loop = "";
 		this.countReducer = this.countReducer.bind(this);
@@ -86,8 +86,13 @@ class ExerciseContainer extends Component {
 		if (prevState.count !== this.state.count) {
 		}
 		if (this.state.count === 0) {
-			this.setState({ count: 10 });
 			this.setState({ set: this.state.set - 1 });
+			this.setState({ count: 10 });
+		}
+		if (this.state.set === 0) {
+			setTimeout(() => {
+				this.props.history.push("/rewards");
+			}, 100);
 		}
 	};
 
